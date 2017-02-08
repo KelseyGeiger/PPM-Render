@@ -407,7 +407,11 @@ void draw_triangle_alpha(Image* image, Triangle2D tri, ColorRGB color, float alp
 
 void blit(Image* dest, Rect2D dest_rect, const Image* src, Rect2D src_rect)
 {
+	unsigned int dest_x, dest_y;
+	unsigned int src_x, src_y;
+	dest_x = dest_y = src_x = src_y = 0;
 
+	
 }
 
 void blit_alpha(Image* dest, Rect2D dest_rect, const Image* src, Rect2D src_rect, float alpha)
