@@ -449,5 +449,42 @@ void blit(Image* dest, Rect2D dest_rect, const Image* src, Rect2D src_rect)
 
 void blit_alpha(Image* dest, Rect2D dest_rect, const Image* src, Rect2D src_rect, float alpha)
 {
-
+	unsigned int dest_x, dest_y;
+	unsigned int src_x, src_y;
+	unsigned dest_width, dest_height;
+	unsigned src_width, src_height;
+	
+	dest_width = dest_rect.top_right.x - dest_rect.bottom_left.x;
+	dest_height = dest_rext.top_right.y - dest_rect.bottom_left.y;
+	
+	src_width = src_rect.top_right.x - src_rect.bottom_left.x;
+	src_height = src_rect.top_right.y - src_rect.bottom_left.y;
+	
+	dest_x = dest_rect.bottom_left.x;
+	dest_y = dest_rect.top_right.y;
+	
+	src_x = src_rect.bottom_left.x;
+	src_y = src_rect.top_right.y;
+	
+	float tx = 0;
+	float ty = 0;
+	
+	for(; dest_y < dest_rect.bottom_left.y; dest_y--) {
+		ty = (float)(dest_y - dest_rect.bottom_left.y)/dest_height;
+		src_y = src_rect.top_right.y - round_i(ty * src_height);		
+		
+		if(src_y > src->height) {
+			continue;
+		}
+		
+		for(; dest_x < dest_rect.top_right.x; dest_x++) {
+			tx = (float)(dest_x - dest_rect.bottom_left.x)/dest_width;
+			src_x = src_rect.bottom_left.x + round_i(tx * src_width);
+			
+			if(src_x < src->width) {
+				ColorRGB color = ppm_get_pixel(src, src_x, src->height - src_y);
+				draw_point_alpha(dest, point2(dest_x, dest_y), color, alpha);
+			}
+		}
+	}
 }
