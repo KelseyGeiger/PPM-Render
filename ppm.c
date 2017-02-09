@@ -12,7 +12,7 @@ int max(int l, int r)
 
 int clamp(int in, int less, int greater)
 {
-	return min(in, max(greater, in));
+	return min(greater, max(less, in));
 }
 
 PPM_Pixel ppm_rgb(int r, int g, int b)
