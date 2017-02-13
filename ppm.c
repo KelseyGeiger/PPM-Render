@@ -74,14 +74,29 @@ void ppm_set_rgb(PPM_Image* img, int x, int y, int r, int g, int b)
 	ppm_set_pixel(img, x, y, ppm_rgb(r, g, b));
 }
 
-PPM_Pixel ppm_get_pixel(PPM_Image* img, int x, int y)
+PPM_Pixel ppm_get_pixel(const PPM_Image* img, int x, int y)
 {
-	if(y < img->header.height && x < img->header.width && y >= 0 && x >= 0) {
-		return img->buffer[(y * img->header.width) + x];
+	if(y >= img->header.height) {
+		fprintf(stderr, "Error: y = %d >= img->header.height in ppm_get_pixel.\n", y);
+		return ppm_rgb(0, 0, 0);
 	}
 	
-	fprintf(stderr, "Error: out of bounds access in ppm_get_pixel.\n");
-	exit(EXIT_FAILURE);
+	if(x >= img->header.width) {
+		fprintf(stderr, "Error: x = %d >= img->header.width in ppm_get_pixel.\n", x);
+		return ppm_rgb(0, 0, 0);
+	}
+	
+	if(y < 0) {
+		fprintf(stderr, "Error: y = %d < 0 in ppm_get_pixel.\n", y);
+		return ppm_rgb(0, 0, 0);
+	}
+	
+	if(x < 0) {
+		fprintf(stderr, "Error: x = %d < 0 in ppm_get_pixel.\n", x);
+		return ppm_rgb(0, 0, 0);
+	}
+
+	return img->buffer[(y * img->header.width) + x];
 }
 
 void ppm_save(PPM_Image* img, const char* filename)
@@ -114,7 +129,7 @@ PPM_Image* ppm_load(const char* filename)
 	
 	if(!in) {
 		fprintf(stderr, "Error opening input file.\n");
-		return;
+		return NULL;
 	}
 	
 	char buf[2];

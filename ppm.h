@@ -7,6 +7,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+int min(int l, int r);
+int max(int l, int r);
+int clamp(int in, int less, int greater);
+
 typedef struct {
 	int width;
 	int height;
@@ -30,7 +34,7 @@ void ppm_destroy(PPM_Image* img);
 
 void ppm_set_pixel(PPM_Image* img, int x, int y, PPM_Pixel pixel);
 void ppm_set_rgb(PPM_Image* img, int x, int y, int r, int g, int b);
-PPM_Pixel ppm_get_pixel(PPM_Image* img, int x, int y);
+PPM_Pixel ppm_get_pixel(const PPM_Image* img, int x, int y);
 
 void ppm_save(PPM_Image* img, const char* filename);
 PPM_Image* ppm_load(const char* filename);

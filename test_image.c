@@ -1,5 +1,10 @@
 #include "ppm.h"
 #include "draw.h"
+#include "math.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 static int floor_i(float f)
 {
@@ -37,6 +42,7 @@ float Perlin2D(float x, float y, float pers, int n_oct);
 int main(int argc, char** argv)
 {	
 	Image* image = ppm_create(1024, 1024);
+	Image* smaller = ppm_create(128, 128);
 	
 	int x, y;
 	for(y = 0; y < image->header.height; y++) {
@@ -45,29 +51,48 @@ int main(int argc, char** argv)
 			float x_scale = image->header.width / 8.0f;
 			float y_scale = image->header.height / 8.0f;
 			Point2D samp = point2((pix.x + 512) / x_scale, (pix.y + 512) / y_scale);
-			ColorRGB color = color_field(samp);
+			//ColorRGB color = color_field(samp);
 			ColorRGB height = heightmap(samp);
-			ColorRGB blended = blend(color, height, 0.1f);
-			draw_point(image, pix, blended);
+			//ColorRGB blended = blend(color, height, 0.1f);
+			draw_point(image, pix, height);
+		}
+	}
+
+	for(y = 0; y < smaller->header.height; y++) {
+		for(x = 0; x < image->header.width; x++) {
+			Point2D pix = point2(x, y);
+			float x_scale = image->header.width / 8.0f;
+			float y_scale = image->header.height / 8.0f;
+			Point2D sample = point2((pix.x) / x_scale, (pix.y) / y_scale);
+			ColorRGB color = heightmap(sample);
+			draw_point(smaller, pix, color);
 		}
 	}
 	
+	Rect2D src_rect, dest_rect;
+	src_rect = (Rect2D) { point2(0, 0), point2(smaller->header.width, smaller->header.height) };
+	dest_rect = (Rect2D) { point2(128, 128), point2(448, 448) };
+	blit_alpha(image, dest_rect, smaller, src_rect, 0.1f);
+	
 	ppm_save(image, "overlay.ppm");
+
+	ppm_destroy(smaller);
+	ppm_destroy(image);
 	
 	return 0;
 }
 
 ColorRGB heightmap(Point2D point)
 {
-	static int init = (1!=1);
-	ColorRGB greyscale[256];
+	static int init = 0;
+	static ColorRGB greyscale[256];
 	
 	if(!init) {
 		int i;
 		for(i = 0; i < 256; i++) {
 			greyscale[i] = rgb(i, i, i);
 		}
-		init = (1==1);
+		init = 1;
 	}
 	
 	float color_percent = Perlin2D(point.x, point.y, 0.5, 10);
@@ -80,7 +105,7 @@ ColorRGB heightmap(Point2D point)
 		color_percent = 1.0f;
 	}
 	
-	color_percent *= ((sizeof(greyscale) / sizeof(greyscale[0])) - 1);
+	color_percent *= 255;
 	
 	int rounded = round_i(color_percent);
 	

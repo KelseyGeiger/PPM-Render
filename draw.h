@@ -22,8 +22,8 @@ typedef PPM_Pixel ColorRGB;
 typedef PPM_Image Image;
 
 typedef struct {
-	Point2D top_left;
-	Point2D bot_right;
+	Point2D bot_left;
+	Point2D top_right;
 } Rect2D;
 
 typedef struct {
